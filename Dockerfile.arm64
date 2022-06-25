@@ -20,7 +20,7 @@ ENV JAVA_HOME='/usr/lib/jvm/java-11-openjdk' \
 
 RUN set -eux; \
     addgroup -S -g 1000 sonarqube; \
-    adduser -S -D -u 1000 -G sonarqube sonarqube; \
+    adduser -S -D -u 1000 -G sonarqube sonarqube -s /bin/bash; \
     apk add --no-cache --virtual build-dependencies gnupg unzip curl; \
     apk add --no-cache bash su-exec ttf-dejavu openjdk11-jre; \
     # pub   2048R/D26468DE 2015-05-25
