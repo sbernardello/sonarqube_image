@@ -1,6 +1,6 @@
 def podlabel = "jenkins-${UUID.randomUUID().toString()}"
 
-pipeline { 
+pipeline {
   environment {
     IMAGE_TAG = "${sh(script:'echo \$(date +%Y-%m%d-%H%M)', returnStdout: true)}"
     ECR_IMAGE_NAME = "mobiletechnologies/sonarqube"
@@ -9,7 +9,7 @@ pipeline {
     PRODUCT_REPOSITORY = "https://github.com/sbernardello/sonarqube_image.git/"
     PRODUCT_REPOSITORY_BRANCH = "*/main"
 }
-  agent { 
+  agent {
     kubernetes {
         label podlabel
         yaml """
@@ -36,19 +36,19 @@ spec:
         - key: .dockerconfigjson
           path: config.json
 """
-    }  
+    }
 }
     stages {
       stage('Checkout') {
             steps {
-                checkout([$class: 'GitSCM', 
-                          branches: [[name: env.PRODUCT_REPOSITORY_BRANCH]], 
-                          doGenerateSubmoduleConfigurations: false, 
-                          extensions: [], 
-                          submoduleCfg: [], 
+                checkout([$class: 'GitSCM',
+                          branches: [[name: env.PRODUCT_REPOSITORY_BRANCH]],
+                          doGenerateSubmoduleConfigurations: false,
+                          extensions: [],
+                          submoduleCfg: [],
                           userRemoteConfigs: [
                               [
-                                  credentialsId: 'jenkins-ganimede-github-oauth-token', 
+                                  credentialsId: 'jenkins-ganimede-github-oauth-token',
                                   url: env.PRODUCT_REPOSITORY
                               ]
                           ]
@@ -61,13 +61,13 @@ spec:
             // GITHUB_ACCESS_TOKEN = credentials('jenkins-ganimede-github-oauth-token')
         }
         steps {
-            
+
             container(name: 'kaniko', shell: '/busybox/sh') {
 
                 sh """#!/busybox/sh -xe
                 set +x
                 echo "\n *** Building sonarqube image *** \n"
-                
+
                 /kaniko/executor -c `pwd` \
                 -f `pwd`/Dockerfile.arm64 \
                 --cleanup \
@@ -76,8 +76,8 @@ spec:
             """
             }
         }
-    
+
     }
-   
+
   }
 }
